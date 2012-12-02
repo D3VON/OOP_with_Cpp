@@ -1,0 +1,32 @@
+PROJECT = B00135581
+SRC_FILES =   \
+	test.cpp   \
+	Person.hpp \
+	Person.cpp \
+   DoublyLinkedCircularSentinel.hpp \
+   DoublyLinkedCircularSentinel.cpp \
+	Makefile   \
+	README
+
+a.out: test.o Person.o DoublyLinkedCircularSentinel.o
+   gcc -g -Wall -o a.out test.o Person.o DoublyLinkedCircularSentinel.o
+
+test.o: test.cpp Person.hpp DoublyLinkedCircularSentinel.hpp
+   gcc -c test.cpp
+
+Person.o Person.cpp Person.h
+   gcc -c Person.cpp
+
+DoublyLinkedCircularSentinel.o DoublyLinkedCircularSentinel.cpp DoublyLinkedCircularSentinel.h
+   gcc -c DoublyLinkedCircularSentinel.cpp
+
+
+#Removes all objects and executables.
+clean:
+	rm -f  *.out *.o  core *.core *~
+
+#This target makes a archive containing all the project source files,
+#suitable for submission.
+submit:	$(SRC_FILES)
+	tar cvfz $(PROJECT).tar.gz $(SRC_FILES)
+

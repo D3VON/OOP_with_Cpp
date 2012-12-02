@@ -1,0 +1,17 @@
+README
+
+Devon McBride
+B00135581 (B-number)
+March 5, 2012
+
+This late submission is substantially the same as my original
+submission but with the following improvements:
+
+1. the macro works
+
+2. memory leaks eliminated
+
+Significant Problem:
+-------------------
+
+My implementation seg faults *after* 109 iterations.  

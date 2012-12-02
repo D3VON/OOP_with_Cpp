@@ -1,0 +1,234 @@
+/*
+ * List.hpp
+ *
+ *  Created on: February 29, 2012
+ *      Author: Devon McBride
+ *    B-number: B00135581
+ */
+
+#ifndef List_HPP
+#define LIST_HPP
+
+
+#ifndef LINK_AND_MERGESORTFUNCTIONS
+#define LINK_AND_MERGESORTFUNCTIONS
+struct Link {
+  Link *next, *prev;
+};
+
+void MergeSort(struct Link** headRef)
+{
+  struct Link* head = *headRef; 
+  struct Link* a;
+  struct Link* b;
+  if ((head == NULL) || (head->next == NULL))
+  {
+    return;
+  }
+  printf("calling FrontBackSplit(head, &a, &b);\n");
+  FrontBackSplit(head, &a, &b); 
+  MergeSort(&a);
+  MergeSort(&b);
+  *headRef = SortedMerge(a, b);
+}
+struct Link* SortedMerge(struct Link* a, struct Link* b)
+{
+  struct Link* result = NULL;
+ 
+  if (a == NULL)
+     return(b);
+  else if (b==NULL)
+     return(a);
+  if ( 
+        objname_less(
+     ((Node*)(a))->p,
+     ((Node*)(b))->p 
+   )
+     )
+  {
+     result = a;
+     result->next = SortedMerge(a->next, b);
+  }
+  else
+  {
+     result = b;
+     result->next = SortedMerge(a, b->next);
+  }
+  return(result);
+}
+void FrontBackSplit(struct Link* source, struct Link** frontRef, struct Link** backRef)
+{ 
+  struct Link* fast;
+  struct Link* slow;
+  if (source==NULL || source->next==NULL)
+  {
+    *frontRef = source;
+    *backRef = NULL;
+  }
+  else
+  {
+    slow = source;
+    fast = source->next;
+ 
+    while (fast != NULL)
+    {
+      fast = fast->next;
+      if (fast != NULL)
+      {
+        slow = slow->next;
+        fast = fast->next;
+      }
+    }
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = NULL;
+  }
+}
+#endif //LINK_AND_MERGESORTFUNCTIONS
+
+
+
+#define List_DEFINE(objname)\
+struct Node {\
+  Link link;\
+  objname p;\
+};\
+struct List_##objname_Iterator\
+{\
+  Link    *link;\
+  objname (*deref)(List_##objname_Iterator*);\
+  void    (* inc)  (List_##objname_Iterator*);\
+  void    (* dec)  (List_##objname_Iterator*);\
+};\
+struct List_##objname  {\
+  Link head; \
+  int  count; \
+  char type[(int)sizeof("List_##objname")];\
+  List_##objname_Iterator (*begin)     (List_##objname*);\
+  List_##objname_Iterator (*end)       (List_##objname*);\
+  List_##objname_Iterator (*push_front)(List_##objname*, objname);\
+  List_##objname_Iterator (*push_back) (List_##objname*, objname);\
+  void (*sort_##objname_List)(List_##objname*);\
+  bool (*sort_style)      (const objname, const objname);  \
+  void (*erase_##objname)(List_##objname*, List_##objname_Iterator);\
+  void (*delet_##objname)(List_##objname*);\
+};\
+void sort_##objname_List(List_##objname * list){\
+\
+  list->head.prev->next = 0;\
+  list->head.prev = 0;\
+\
+  MergeSort(&(list->head.next));\
+  \
+  Link *linky = &(list->head);\
+  Link* head = linky;         \
+  linky->next->prev = linky;  \
+  linky = linky->next;        \
+  while(linky!=NULL)\
+  {\
+     printf("%s \n", ((Node*)(linky))->p->name);\
+     if (linky->next == NULL) \
+     {\
+        linky->next = head;   \
+        linky->next->prev = linky;\
+        break;\
+     }\
+     linky->next->prev = linky;  \
+     linky = linky->next;        \
+  }\
+}\
+List_##objname *List_##objname_new(bool objname_less(const objname, const objname));\
+void ##objname_insert_before(Link *pos, Node *n);\
+List_##objname_Iterator push_front(List_##objname* list, objname p);\
+List_##objname_Iterator push_back(List_##objname* list, objname p);\
+void ##objname_inc(List_##objname_Iterator *it);\
+void ##objname_dec(List_##objname_Iterator *it);\
+List_##objname_Iterator end(List_##objname* list);\
+List_##objname_Iterator begin(List_##objname* list);\
+objname deref(List_##objname_Iterator* it);\
+List_##objname_Iterator List_##objname_Iterator_new(Link* link);\
+void erase_##objname(List_##objname* list, List_##objname_Iterator it);\
+void List_##objname_delet(List_##objname* list);\
+List_##objname *List_##objname_new(bool objname_less(const objname, const objname))\
+{  \
+	List_##objname *list = (List_##objname *)malloc(sizeof(List_##objname));\
+  list->head.next = &(list->head); \
+  list->head.prev = &(list->head);\
+  List_##objname_Iterator it = begin(list);\
+	list->count = 0;\
+  strcpy(list->type, "List_##objname");\
+  list->begin = begin;\
+  list->end = end;\
+  list->sort_##objname_List = &sort_##objname_List;\
+  list->erase_##objname = erase_##objname;\
+  list->delet_##objname = List_##objname_delet;\
+  list->sort_style = objname_less; \
+  list->push_front = push_front;\
+  list->push_back = push_back;\
+	return  list;\
+}\
+void List_##objname_delet(List_##objname* list){\
+  free(list);\
+}\
+List_##objname_Iterator push_front(List_##objname* list, objname p) {\
+  list->count++;\
+  Node *n = (Node*)malloc(sizeof(Node));\
+  n->p = p;     \
+  ##objname_insert_before(list->head.next, n);\
+  return List_##objname_Iterator_new( &(n->link) );\
+}\
+List_##objname_Iterator push_back(List_##objname* list, objname p) {\
+  list->count++;\
+  Node *n = (Node*)malloc(sizeof(Node));\
+  n->p = p;\
+  ##objname_insert_before(&(list->head), n);\
+  return List_##objname_Iterator_new( &(n->link) );\
+}\
+void ##objname_insert_before(Link *pos, Node *n) {\
+  n->link.next = pos;\
+  n->link.prev = pos->prev;\
+  pos->prev->next = &(n->link);\
+  pos->prev = &(n->link);\
+}\
+void erase_##objname(List_##objname* list, List_##objname_Iterator it){\
+  list->count--;\
+\
+  it.link->next->prev = it.link->prev;\
+  it.link->prev->next = it.link->next;\
+}\
+List_##objname_Iterator List_##objname_Iterator_new(Link* link){\
+  List_##objname_Iterator it;\
+  it.link = link;\
+  it.inc = &##objname_inc;\
+  it.deref = &deref;\
+  it.dec = &##objname_dec;\
+  return it;\
+}\
+void ##objname_inc(List_##objname_Iterator *it) {\
+  it->link = it->link->next;\
+}\
+void ##objname_dec(List_##objname_Iterator *it) {\
+  it->link = it->link->prev;\
+}\
+bool \
+List_##objname_Iterator_equal( List_##objname_Iterator it1, \
+            List_##objname_Iterator it2)\
+{ \
+  if (it1.link == it2.link) \
+  {\
+    return 1; \
+  }\
+  return 0;\
+}\
+##objname deref(List_##objname_Iterator* it){\
+  return ((Node*)(it->link))->p;  \
+}\
+List_##objname_Iterator end(List_##objname* list) {\
+  return List_##objname_Iterator_new(&(list->head));\
+}\
+List_##objname_Iterator begin(List_##objname* list) {\
+  return List_##objname_Iterator_new(list->head.next);\
+}
+
+
+#endif // LIST_HPP

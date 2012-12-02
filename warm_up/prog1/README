@@ -1,0 +1,34 @@
+README
+
+Devon McBride
+B00135581 (B-number)
+February 29, 2012
+
+Incomplete warmup assignment. 
+
+test.cpp incuded, and modified as follows:
+=========================================
+
+-testing of MyClass, int, Stress commented out. 
+
+-code to test PersonPtr pasted into test.cpp at where
+ it would be called as a macro (List_DEFINE(PersonPtr))
+
+-dummy List_DEFINE(PersonPtr) made so as not to disturb other code.
+
+-function 'check' commented out inability to compile.
+
+Goals achieved:
+==============
+
+- All of part 1 works; and the PersonPtr part of part 2.
+
+-I believe my List.hpp macro was close to working, but didn't.
+
+-person 'classes' implemented (freeing memory wouldn't work for me)
+
+-doubly linked circular list with sentinel implemented
+
+-iterators work 
+
+-merge-sort works on list in-place, without moving any data
